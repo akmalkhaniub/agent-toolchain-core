@@ -1,0 +1,29 @@
+{
+  "name": "@agent-toolchain/core",
+  "version": "1.0.0",
+  "description": "Enterprise-grade versioned skills-as-code, agent rules standard linter, pre-commit hooks, and AI code review engine.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "rules-lint": "./bin/rules-lint.js",
+    "ai-review": "./bin/ai-review.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "lint:rules": "node --import tsx bin/rules-lint.ts AGENTS.md",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "zod": "^3.24.2",
+    "commander": "^13.1.0",
+    "picocolors": "^1.1.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "vitest": "^2.1.0",
+    "tsx": "^4.19.0",
+    "@types/node": "^22.0.0"
+  }
+}
