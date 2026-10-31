@@ -1,24 +1,17 @@
-# AGENTS.md — Corporate Agentic Rules Standard
+# AGENTS.md — Autonomous Agent Operating Contract
 
-This document defines the strict engineering guidelines and boundaries for autonomous AI coding agents operating on this repository.
+## 🎯 Repository Purpose & Architecture
+`agent-toolchain-core` is a versioned 'Skills-as-Code' developer platform featuring reusable Claude Code slash commands, codified `AGENTS.md` schema linters (`bin/rules-lint`), and an automated AST PR review engine catching silent exceptions and unsafe casts.
 
-## Architecture Philosophy
-- Treat prompt engineering and agent rules as versioned code with automated regression tests.
-- Favor explicit schemas (Zod) and typed contracts over untyped data manipulation.
-- Design every AI feature with silent-failure defense, structured output verification, and cost tracking.
+### Tech Stack
+- **Language**: TypeScript (Node.js 20+)
+- **Testing**: Vitest
+- **Core Scripts**: `bin/rules-lint`, `src/review-engine.ts`
 
-## Allowed Actions
-- Adding new Claude Code skills under `.claude/skills/`.
-- Adding new lint rules to `src/review-engine/` and `src/rules-spec/`.
-- Running test suites via `npm test` and typechecking via `npm run lint`.
+---
 
-## Forbidden Patterns
-- Disallow empty `catch` blocks or swallowing errors silently.
-- Disallow `any` casts in non-test TypeScript source files without explicit team approval.
-- Disallow committing hardcoded API keys, bearer tokens, or secrets.
-- Disallow naked `console.log` in production runtime modules.
-
-## Verification Commands
-- `npm test`: Runs Vitest test suite for linter and review engine.
-- `npm run lint`: Verifies strict TypeScript type compliance.
-- `npm run lint:rules`: Validates AGENTS.md against the rules schema.
+## ⚡ Autonomous Execution Protocol
+1. Pull task from `TASKS.json`.
+2. Implement linter rules / AST visitors.
+3. Run verification: `pnpm test`.
+4. Commit with: `feat(task-id): description`.

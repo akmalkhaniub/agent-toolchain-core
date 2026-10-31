@@ -1,0 +1,13 @@
+[
+  {
+    "id": "ATC-001",
+    "status": "TODO",
+    "priority": 1,
+    "title": "Add Unindexed Foreign Key Detector to AST Review Engine",
+    "description": "Extend AST review engine in `src/review-engine.ts` to inspect Drizzle / Prisma schemas and flag foreign key fields that lack a dedicated index.",
+    "acceptance_criteria": [
+      "Flags missing foreign key index violations with line numbers",
+      "Vitest tests in tests/review-engine.test.ts pass"
+    ]
+  }
+]
