@@ -55,4 +55,74 @@ describe('AI Code Review & Diff Engine', () => {
     expect(result.verdict).toBe('APPROVE');
     expect(result.blockingCount).toBe(0);
   });
+
+  it('should flag unindexed Drizzle foreign keys with exact line numbers', () => {
+    const drizzleDiff = `
+--- a/src/db/schema.ts
++++ b/src/db/schema.ts
+@@ -10,3 +10,5 @@
++export const invoices = pgTable('invoices', {
++  id: serial('id').primaryKey(),
++  tenantId: integer('tenant_id').notNull().references(() => tenants.id),
++});
+`;
+
+    const result = AiDiffAnalyzer.analyzeDiff(drizzleDiff);
+    expect(result.verdict).toBe('COMMENT');
+    expect(result.warningCount).toBe(1);
+    expect(result.findings[0].ruleId).toBe('MISSING_FOREIGN_KEY_INDEX');
+    expect(result.findings[0].line).toBe(12);
+    expect(result.findings[0].suggestedFix).toContain('table.tenantId');
+  });
+
+  it('should allow Drizzle foreign keys covered by explicit index()', () => {
+    const indexedDrizzleDiff = `
+--- a/src/db/schema.ts
++++ b/src/db/schema.ts
+@@ -10,3 +10,7 @@
++export const invoices = pgTable('invoices', {
++  id: serial('id').primaryKey(),
++  tenantId: integer('tenant_id').notNull().references(() => tenants.id),
++}, (table) => ({
++  tenantIdx: index('idx_invoices_tenant_id').on(table.tenantId),
++}));
+`;
+
+    const result = AiDiffAnalyzer.analyzeDiff(indexedDrizzleDiff);
+    expect(result.verdict).toBe('APPROVE');
+    expect(result.findings).toHaveLength(0);
+  });
+
+  it('should flag unindexed Prisma @relation foreign keys and accept @@index', () => {
+    const unindexedPrismaDiff = `
+--- a/prisma/schema.prisma
++++ b/prisma/schema.prisma
+@@ -15,3 +15,5 @@
++model LeaseDocument {
++  id         String @id
++  propertyId String
++  property   Property @relation(fields: [propertyId], references: [id])
++}
+`;
+    const badResult = AiDiffAnalyzer.analyzeDiff(unindexedPrismaDiff);
+    expect(badResult.verdict).toBe('COMMENT');
+    expect(badResult.findings[0].ruleId).toBe('MISSING_FOREIGN_KEY_INDEX');
+    expect(badResult.findings[0].line).toBe(18);
+    expect(badResult.findings[0].suggestedFix).toBe('@@index([propertyId])');
+
+    const indexedPrismaDiff = `
+--- a/prisma/schema.prisma
++++ b/prisma/schema.prisma
+@@ -15,3 +15,6 @@
++model LeaseDocument {
++  id         String @id
++  propertyId String
++  property   Property @relation(fields: [propertyId], references: [id])
++  @@index([propertyId])
++}
+`;
+    const goodResult = AiDiffAnalyzer.analyzeDiff(indexedPrismaDiff);
+    expect(goodResult.verdict).toBe('APPROVE');
+    expect(goodResult.findings).toHaveLength(0);
+  });
 });
